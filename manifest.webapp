@@ -1,0 +1,15 @@
+{
+  "name": "Roll Dice",
+  "description": "Roll dice!",
+  "launch_path": "/index.html",
+  "icons": {
+    "512": "/img/512.png",
+    "128": "/img/128.png"
+  },
+  "developer": {
+    "name": "Bence Szendy",
+    "url": ""
+  },
+  "default_locale": "en",
+  "chrome": { "navigation": true }
+}

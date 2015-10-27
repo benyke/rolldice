@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Roll Dice - Home</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="style/headers.css" rel="stylesheet" type="text/css" />
+    <link href="style/confirm.css" rel="stylesheet" type="text/css">
+    <link href="style/layout.css" rel="stylesheet" type="text/css">
+	<link href="style/buttons.css" rel="stylesheet" type="text/css">
+    <script src="app.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+
+    <div id="main">
+        <section role="region" class="vbox fit">
+            <header id="header">
+                <button id="exit"><span class="icon icon-close">close</span></button>
+				
+                <menu type="toolbar">
+                    <button id="settings"><span class="icon icon-options">settings</span></button>
+                </menu>
+				<h1 style="margin-right: 50px">Roll Dice</h1>
+            </header>
+
+        </section>
+        <section style="margin: 0; text-align: center; width: 100%">
+
+            <h1 id="value">Result: ...</h1>
+
+            <div id="img" style="margin-bottom: 20px;">
+                Loading...
+            </div>
+			
+			<button id="reroll"/> 
+				Throw again!
+            </button>
+			
+        </section>
+    </div>
+
+    <form id="confirm" role="dialog" data-type="confirm" style="display: none">
+        <section>
+            <h1>Confirmation</h1>
+            <p>Are you sure you want to quit?</p>
+        </section>
+        <menu>
+            <button id="cancel">Cancel</button>
+            <button onclick="exit()" class="danger">Quit</button>
+        </menu>
+    </form>
+
+    <script>
+        // settings
+        var color;
+        var numberOfDices;
+        var customRoll;
+
+        CreateDBConnection(loadSettingsAndGenerate);
+		
+        // on load
+        window.onload = function() {
+
+            document.getElementById("reroll").onclick = function() {
+                randomAll();
+            }
+            document.getElementById("exit").onclick = function() {
+                document.getElementById("confirm").style.display = 'block';
+            }
+            document.getElementById("settings").onclick = function() {
+                redirect("settings.html");
+            }
+            document.getElementById("cancel").addEventListener("click", function(event) {
+                event.preventDefault();
+                document.getElementById("confirm").style.display = 'none';
+            });
+
+        }
+
+
+        // dice	
+        function generate() {
+            // generate basic dimms
+            var container = "";
+            for (var i = 0; i < numberOfDices; i++) {
+
+                if (i % 3 == 0) container += "</br>";
+
+                container += "<img src=\"img/" + color + "/random.gif\" id=\"" + i +
+                    "\" class=\"img\" rolling=\"off\" value=\"0\">";
+            }
+            document.getElementById("img").innerHTML = container;
+
+            // create list from dices
+            var itemlist = document.getElementsByClassName("img");
+
+            for (var i = 0; i < itemlist.length; i++) {
+                if (customRoll) itemlist[i].addEventListener('click', randomDice, false);
+                itemlist[i].roll = randomDice;
+            }
+			
+			document.getElementById("header").className = color;
+			document.getElementById("reroll").className = color;
+			
+            randomAll();
+        }
+
+
+        // function for random all
+        function randomAll() {
+            // create list from dices
+            var itemlist = document.getElementsByClassName("img");
+
+            for (var i = 0; i < itemlist.length; i++) {
+                itemlist[i].roll();
+            }
+        }
+
+        function updateText() {
+            // create list from dices
+            var itemlist = document.getElementsByClassName("img");
+            var readyToCount = true;
+            for (var i = 0; i < itemlist.length; i++) {
+                if (itemlist[i].getAttribute("rolling") == "on") {
+                    readyToCount = false;
+                    break;
+                }
+            }
+
+            if (readyToCount) {
+                var count = 0;
+                for (var i = 0; i < itemlist.length; i++) {
+                    count += parseInt(itemlist[i].getAttribute("value"));
+                }
+                document.getElementById("value").innerHTML = "Result: " + count;
+
+            }
+
+
+        }
+        // roll function for one dice
+        function randomDice() {
+            var currentObject = this;
+
+            if (currentObject.getAttribute("rolling") == "off") {
+
+                currentObject.setAttribute("rolling", "on");
+
+                var waitingTime = Math.round(Math.random() * 3500);
+
+                console.log(waitingTime);
+
+                currentObject.setAttribute("src", "img/" + color + "/random.gif");
+
+                setTimeout(function() {
+                    var randomdice = Math.round(Math.random() * 5) + 1;
+                    var subImg = Math.round(Math.random() * 3);
+                    currentObject.setAttribute("src", "img/" + color + "/" + randomdice + "_" + subImg + ".png");
+                    currentObject.setAttribute("rolling", "off");
+                    currentObject.setAttribute("value", randomdice);
+                    updateText();
+                }, waitingTime);
+            } else console.log(currentObject.getAttribute("id") + ". dice is already rolling!");
+        }
+
+        function exit() {
+            window.close();
+        }
+    </script>
+</body>
+
+</html>
